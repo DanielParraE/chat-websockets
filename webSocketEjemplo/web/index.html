@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>WebSocket Test</title>
+        <script language="javascript" type="text/javascript">
+            var username = window.prompt("Ingresa tu nombre de usuario.", "xxxgodmasterxxx");
+            var wsUri = "ws://192.168.1.65:8080/webSocketEjemplo/endpoint/" + username;
+            var output;
+
+            function enviar() {
+                var txt = document.getElementById("txtMsj");
+                doSend(txt.value);
+            }
+
+            function init()
+            {
+                output = document.getElementById("output");
+                testWebSocket();
+            }
+
+            function testWebSocket()
+            {
+                websocket = new WebSocket(wsUri);
+                websocket.onopen = function (evt) {
+                    onOpen(evt)
+                };
+                websocket.onclose = function (evt) {
+                    onClose(evt)
+                };
+                websocket.onmessage = function (evt) {
+                    onMessage(evt)
+                };
+                websocket.onerror = function (evt) {
+                    onError(evt)
+                };
+            }
+
+            function onOpen(evt)
+            {
+                writeToScreen("CONNECTED");
+            }
+
+            function onClose(evt)
+            {
+                writeToScreen("DISCONNECTED");
+            }
+
+            function onMessage(evt)
+            {
+                writeToScreen('<span style="color: blue;">' + evt.data + '</span>');
+                //websocket.close();
+            }
+
+            function onError(evt)
+            {
+                writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+            }
+
+            function doSend(message)
+            {
+                writeToScreen(username + ": " + message);
+                
+                console.log(typeof message);
+                
+                let msg = new Object();
+                // startswith("onlyto:")
+                if (false) {
+                    let destination = message.toString().split("")[0].split(":")[1];
+                    let body = message.toString().split("onlyto:" + destination + " ")[1];
+                    let onlyto = true;
+                    
+                    msg.body = body;
+                    msg.destination = destination;
+                    msg.onlyto = onlyto;
+                } else {
+                    msg.body = message;
+                }
+                
+                websocket.send(JSON.stringify(msg));
+            }
+
+            function writeToScreen(message)
+            {
+                var pre = document.createElement("p");
+                pre.style.wordWrap = "break-word";
+                pre.innerHTML = message;
+                output.appendChild(pre);
+            }
+
+            window.addEventListener("load", init, false);
+
+        </script>
+    </head>
+    <body>
+        <h2>WebSocket Test</h2>
+        Escribe un mensaje: 
+        <input type="text" id="txtMsj" />
+        <button id="btn" onclick="enviar()">Enviar</button>
+        <div id="output"></div>
+    </body>
+</html>  
